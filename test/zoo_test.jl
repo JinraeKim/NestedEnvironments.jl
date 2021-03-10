@@ -5,7 +5,7 @@ using Random
 using Transducers
 
 
-function dyn(env)
+function dynamics(env::NestedEnvironments.InputAffineQuadraticCostEnv)
     return function (x, p, t)
         u = command(env, x)
         NestedEnvironments.ẋ(env, x, t, u)
@@ -29,7 +29,7 @@ function single()
     Δt = 0.01
     tspan = (t0, tf)
     ts = t0:Δt:tf
-    prob = ODEProblem(env, dyn(env), x0, tspan)
+    prob = ODEProblem(env, dynamics(env), x0, tspan)
     @time sol = solve(prob, Tsit5(), saveat=ts)
     plot(sol)
 end
