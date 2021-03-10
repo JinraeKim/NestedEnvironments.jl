@@ -54,7 +54,9 @@ function main()
     xs = (hcat((saved_values.saveval |> Map(nt -> nt.state) |> collect)...))'
     actions = saved_values.saveval |> Map(nt -> nt.action) |> collect
     p_x = plot(ts, xs)
-    savefig(p_x, "x.png")
+    log_dir = "data/agent"
+    mkpath(log_dir)
+    savefig(p_x, joinpath(log_dir, "x.png"))
     p_a = plot(ts, actions)
-    savefig(p_a, "a.png")
+    savefig(p_a, joinpath(log_dir, "a.png"))
 end
