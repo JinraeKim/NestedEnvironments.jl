@@ -12,6 +12,7 @@ include("types.jl")
 include("internalAPIs.jl")
 include("APIs.jl")
 include("macros.jl")
+include("zoo.jl")
 
 
 end
