@@ -13,6 +13,7 @@ Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"
 julia = "1"
 Transducers = "0.4"
 DifferentialEquations = "6.16"
+Parameters = "0.12"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
