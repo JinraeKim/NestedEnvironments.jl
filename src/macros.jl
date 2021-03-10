@@ -7,17 +7,17 @@ macro reg_env(env, x0)
     ex = quote
         if typeof($(env)) <: AbstractEnv
             # names
-            local env_names = NestedEnvironments._names($(env))
-            NestedEnvironments.names(env::typeof($(env))) = env_names
+            # local env_names = NestedEnvironments._names($(env))
+            # Base.names(env::typeof($(env))) = env_names
             # size
-            local env_size = NestedEnvironments._size($(env), $(x0))
-            NestedEnvironments.size(env::typeof($(env))) = env_size
-            NestedEnvironments.size(env::typeof($(env)), x0) = NestedEnvironments.size(env::typeof($(env)))
+            # local env_size = NestedEnvironments._size($(env), $(x0))
+            # NestedEnvironments.size(env::typeof($(env))) = env_size
+            # NestedEnvironments.size(env::typeof($(env)), x0) = NestedEnvironments.size(env::typeof($(env)))
             # # flatten length
-            local env_flatten_length = NestedEnvironments._flatten_length($(env), $(x0))
+            # local env_flatten_length = NestedEnvironments._flatten_length($(env), $(x0))
             # NestedEnvironments.flatten_length(env::typeof($(env)), x0) = env_flatten_length
             # # index
-            local env_index = NestedEnvironments._index($(env), $(x0), 1:env_flatten_length)
+            # local env_index = NestedEnvironments._index($(env), $(x0), 1:env_flatten_length)
             # NestedEnvironments.index(env::typeof($(env)), x0, _range) = env_index
             # # preprocess
             local env_index_nt, env_size_nt = NestedEnvironments._preprocess($(env), $(x0))

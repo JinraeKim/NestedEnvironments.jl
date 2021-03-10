@@ -44,7 +44,7 @@ function parallel()
     Δt = 0.01
     tspan = (t0, tf)
     ts = t0:Δt:tf
-    probs = x0s |> Map(x0 -> ODEProblem(env, dyn(env), x0, tspan)) |> collect
+    probs = x0s |> Map(x0 -> ODEProblem(env, dynamics(env), x0, tspan)) |> collect
     sols = probs |> Map(prob -> solve(prob, Tsit5(), saveat=ts)) |> tcollect
     p = plot()
     _ = sols |> Map(sol -> plot!(sol, label=nothing)) |> collect
