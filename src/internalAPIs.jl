@@ -1,10 +1,10 @@
 # env names
-function _names(env::AbstractEnv)
+function Base.names(env::AbstractEnv)
     return [name for name in fieldnames(typeof(env)) if typeof(getfield(env, name)) <: AbstractEnv]
 end
 # get the size of envs
 function _size(env::AbstractEnv, x0)
-    env_names = _names(env)
+    env_names = names(env)
     if env_names == []
         return size(x0)
     else
@@ -23,7 +23,7 @@ function Base.size(x0::NamedTuple)
 end
 # transform readable to raw (flatten)
 function _raw(env::AbstractEnv, x)
-    env_names = _names(env)
+    env_names = names(env)
     if env_names == []
         return x
     else
@@ -33,7 +33,7 @@ function _raw(env::AbstractEnv, x)
 end
 # get the flatten length of given env
 function _flatten_length(env::AbstractEnv, x0)
-    env_names = _names(env)
+    env_names = names(env)
     if env_names == []
         return prod(size(x0))
     else
@@ -52,7 +52,7 @@ flatten_length(x0::Array{Float64, 1}) = prod(size(x0))
 
 # get the index
 function _index(env::AbstractEnv, x0, _range)
-    env_names = _names(env)
+    env_names = names(env)
     if env_names == []
         return _range
     else

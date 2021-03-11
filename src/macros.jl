@@ -59,7 +59,7 @@ macro raw(env, x)
     end
     esc(ex)
 end
-# auto-transformation
+# auto-completion
 macro raw(x)
     ex = quote
         local env_x_cands = zip(__REGISTERED_ENVS.__envs, __REGISTERED_ENVS.__xs) |> Filter(env_x -> size(env_x[2]) == size($(x))) |> collect
@@ -89,7 +89,7 @@ macro readable(env, _x)
     end
     esc(ex)
 end
-# auto-transformation
+# auto-completion
 macro readable(_x)
     ex = quote
         local env_x_cands = zip(__REGISTERED_ENVS.__envs, __REGISTERED_ENVS.__xs) |> Filter(env_x -> NestedEnvironments.flatten_length(env_x[2]) == NestedEnvironments.flatten_length($(_x))) |> collect
