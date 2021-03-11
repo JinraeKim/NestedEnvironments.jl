@@ -3,7 +3,8 @@ module NestedEnvironments
 using DifferentialEquations
 using Transducers
 
-export AbstractEnv, __REGISTERED_ENVS
+export AbstractEnv
+export __REGISTERED_ENVS  # do not change it manually
 export raw, readable
 export @reg_env, @raw, @readable
 

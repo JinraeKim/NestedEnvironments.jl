@@ -30,11 +30,24 @@ NestedEnvironments.initial_condition(env::NestedEnvironments.InputAffineQuadrati
 __env = Env(NestedEnvironments.InputAffineQuadraticCostEnv(), Policy())
 __x0 = NestedEnvironments.initial_condition(__env)
 @reg_env __env __x0
+__env_zoo = NestedEnvironments.InputAffineQuadraticCostEnv()
+__x0_zoo = NestedEnvironments.initial_condition(__env_zoo)
+@reg_env __env_zoo __x0_zoo
 
 function test()
     env = Env(NestedEnvironments.InputAffineQuadraticCostEnv(), Policy())
     x0 = NestedEnvironments.initial_condition(env)
-    _x0 = @raw(env, x0)
+    @show x0
+    @show _x0 = @raw(env, x0)
+    @test _x0 == @raw x0
+    @test x0 == @readable(env, _x0)
+
+end
+function test_zoo()
+    env = NestedEnvironments.InputAffineQuadraticCostEnv()
+    x0 = NestedEnvironments.initial_condition(env)
+    @show x0
+    @show _x0 = @raw(env, x0)
     @test _x0 == @raw x0
     @test x0 == @readable(env, _x0)
 end
