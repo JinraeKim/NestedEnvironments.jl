@@ -27,11 +27,23 @@ macro reg_env(env, x0)
             NestedEnvironments.readable(env::typeof($(env)), _x) = NestedEnvironments._readable(_x, env_index_nt, env_size_nt)
             # raw
             NestedEnvironments.raw(env::typeof($(env)), x) = NestedEnvironments._raw($(env), x)
+            # registered envs
+            append!(__REGISTERED_ENVS, $(env))
         else
             error("Invalid environment")
         end
     end
     esc(ex)
+end
+
+function Base.append!(__REGISTERED_ENVS::RegisteredEnvs, env::AbstractEnv)
+    num_of_already_reg_envs = __REGISTERED_ENVS.__envs |> Filter(__env -> typeof(__env) == typeof(env)) |> collect |> length
+    if num_of_already_reg_envs == 0
+        push!(__REGISTERED_ENVS.__envs, env)
+        println("$(typeof(env)): registered")
+    else
+        println("$(typeof(env)): not registered (already exists)")
+    end
 end
 
 macro raw(env, x)
