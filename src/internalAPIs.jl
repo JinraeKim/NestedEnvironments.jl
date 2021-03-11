@@ -12,6 +12,15 @@ function _size(env::AbstractEnv, x0)
         return (; zip(env_names, env_sizes)...)  # NamedTuple
     end
 end
+function Base.size(x0::NamedTuple)
+    env_names = keys(x0)
+    if env_names == []
+        return size(x0)
+    else
+        env_sizes = env_names |> Map(name -> size(x0[name]))
+        return (; zip(env_names, env_sizes)...)  # NamedTuple
+    end
+end
 # transform readable to raw (flatten)
 function _raw(env::AbstractEnv, x)
     env_names = _names(env)
@@ -31,6 +40,16 @@ function _flatten_length(env::AbstractEnv, x0)
         return env_names |> Map(name -> _flatten_length(getfield(env, name), x0[name])) |> sum
     end
 end
+function flatten_length(x0::NamedTuple)
+    env_names = keys(x0)
+    if env_names == []
+        return prod(size(x0))
+    else
+        return env_names |> Map(name -> flatten_length(x0[name])) |> sum
+    end
+end
+flatten_length(x0::Array{Float64, 1}) = prod(size(x0))
+
 # get the index
 function _index(env::AbstractEnv, x0, _range)
     env_names = _names(env)
