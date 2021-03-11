@@ -4,6 +4,7 @@ using DifferentialEquations
 using Transducers
 
 export AbstractEnv
+export __REGISTERED_ENVS  # do not change it manually
 export raw, readable
 export @reg_env, @raw, @readable
 

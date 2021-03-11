@@ -7,7 +7,7 @@ end
 
 # automatic completion of initial condition
 function initial_condition(env::AbstractEnv)
-    env_names = NestedEnvironments._names(env)
+    env_names = names(env)
     values = env_names |> Map(name -> initial_condition(getfield(env, name)))
     return (; zip(env_names, values)...)  # NamedTuple
 end
