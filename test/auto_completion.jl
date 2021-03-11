@@ -7,47 +7,33 @@ using Plots
 using Test
 
 
-## envs
-struct Policy
-end
-command(policy::Policy, x::Array{Float64, 1}) = -5*sum(x)
-
-struct Env <: AbstractEnv
-    iaqc::NestedEnvironments.InputAffineQuadraticCostEnv
-    policy::Policy
-end
-
-function dynamics(env::Env)
+function dynamics(env::NestedEnvironments.InputAffineQuadraticCostEnv)
     return function (x, p, t)
-        a = p  # zero-order-hold action
-        (; iaqc = NestedEnvironments.ẋ(env.iaqc, x.iaqc, t, a))
+        u = command(env, x)
+        NestedEnvironments.ẋ(env, x, t, u)
     end
 end
-# automatic completion of initial condition
+command(env, x) = NestedEnvironments.u_optimal(env, x)
 NestedEnvironments.initial_condition(env::NestedEnvironments.InputAffineQuadraticCostEnv) = 2*(rand(2) .- 0.5)
-
 # register envs
-__env = Env(NestedEnvironments.InputAffineQuadraticCostEnv(), Policy())
+__env = NestedEnvironments.InputAffineQuadraticCostEnv()
 __x0 = NestedEnvironments.initial_condition(__env)
 @reg_env __env __x0
-__env_zoo = NestedEnvironments.InputAffineQuadraticCostEnv()
-__x0_zoo = NestedEnvironments.initial_condition(__env_zoo)
-@reg_env __env_zoo __x0_zoo
 
 function test()
-    env = Env(NestedEnvironments.InputAffineQuadraticCostEnv(), Policy())
-    x0 = NestedEnvironments.initial_condition(env)
-    @show x0
-    @show _x0 = @raw(env, x0)
-    @test _x0 == @raw x0
-    @test x0 == @readable(env, _x0)
-
-end
-function test_zoo()
     env = NestedEnvironments.InputAffineQuadraticCostEnv()
     x0 = NestedEnvironments.initial_condition(env)
     @show x0
     @show _x0 = @raw(env, x0)
     @test _x0 == @raw x0
     @test x0 == @readable(env, _x0)
+    t0 = 0.0
+    tf = 10.0
+    Δt = 0.01
+    tspan = (t0, tf)
+    ts = t0:Δt:tf
+    prob = ODEProblem(env, dynamics(env), x0, tspan)
+    @time sol = solve(prob, Tsit5(), saveat=ts)
+    xs = sol.u |> Map(u -> @readable u) |> collect
+    @show xs
 end
