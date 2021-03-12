@@ -35,7 +35,7 @@ __x0 = initial_condition(__env)
 function test1()
     env = Env(SubSubEnv(), SubEnv(SubSubEnv(), SubSubEnv()))
     x0 = initial_condition(env)
-    @test x0 == @readable(@raw(x0))
+    @test x0 == @readable @raw x0
 end
 
 function test2()
