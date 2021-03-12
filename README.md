@@ -13,7 +13,28 @@ See `src/API.jl` for more details.
 # Features
 ## Nested environments
 `NestedEnvironments.jl` supports nested environments API.
-The dynamical equations and initial condition are written as if an environment is structure and its state is NamedTuple.
+The **dynamical equations** and **initial condition** are treated as structured forms (as NamedTuple).
+Compared to the original `DifferentialEquations.jl`, you don't need to match the index of derivative calculation.
+For example,
+```julia
+function f(x, p, t)
+    x1 = x.env1  # for example
+    x2 = x.env2  # for example
+    dx1 = x2
+    dx2 = -x1
+    (; x1 = dx1, x2 = dx2)  # NamedTuple
+end
+```
+instead of
+```julia
+function f(x, p, t)
+    dx = zero(x)
+    dx[1] = x[2]
+    dx[2] = -x[1]
+    dx
+end
+```
+.
 For more details, see the below example.
 
 ## Macros and auto-completion
@@ -23,73 +44,82 @@ Conversely,
 `@raw` makes a NamedTuple, default structure of `NestedEnvironments.jl`, an Array compatible with `DifferentialEquations.jl`.
 
 ## Environment Zoo
-It provides some predefined environments. See `src/zoo.jl` for more information.
+It provides some predefined environments.
+See `src/zoo.jl` for more information.
 
 
 # Usage
-## Example: An RL environment consisting of a predefined dynamical system and a policy
-- [ ] Complete an example
+## Example
+### Nested environments
+It is highly recommended to run the following code and practice how to use it.
+
 ```julia
 using NestedEnvironments
 using DifferentialEquations
 using Transducers
-
-using Random
-using Plots
+using Test
 
 
-## envs
-struct Policy
+struct SubEnv2 <: AbstractEnv
 end
-command(policy::Policy, x::Array{Float64, 1}) = -5*sum(x)
-
+struct Env1 <: AbstractEnv
+end
+struct Env2 <: AbstractEnv
+    env21::SubEnv2
+    env22::SubEnv2
+end
 struct Env <: AbstractEnv
-    iaqc::NestedEnvironments.InputAffineQuadraticCostEnv
-    policy::Policy
+    env1::Env1
+    env2::Env2
+    gain::Float64
 end
 
+
+# differential equations are regarded as nested envs (NamedTuple)
 function dynamics(env::Env)
     return function (x, p, t)
-        a = p  # zero-order-hold action
-        (; iaqc = NestedEnvironments.ẋ(env.iaqc, x.iaqc, t, a))
+        x1 = x.env1
+        x21 = x.env2.env21
+        x22 = x.env2.env22
+        ẋ1 = -x1 - env.gain*sum(x21 + x22)
+        ẋ21 = -x21
+        ẋ22 = -x22
+        (; env1 = ẋ1, env2 = (; env21 = ẋ21, env22 = ẋ22))
     end
 end
-# automatic completion of initial condition
-NestedEnvironments.initial_condition(env::NestedEnvironments.InputAffineQuadraticCostEnv) = 2*(rand(2) .- 0.5)
 
-# register envs
-__env = Env(NestedEnvironments.InputAffineQuadraticCostEnv(), Policy())
+# if you extend `NestedEnvironments.initial_condition` for all sub environments, then `NestedEnvironments.initial_condition(env::Env)` will automatically complete a nested initial condition as NamedTuple.
+NestedEnvironments.initial_condition(env::SubEnv2) = reshape(1:2*4, 2, 4)
+NestedEnvironments.initial_condition(env::Env1) = 9  # scalar system
+# for convenience
+function make_env()
+    env21, env22 = SubEnv2(), SubEnv2()
+    env1 = Env1()
+    env2 = Env2(env21, env22)
+    gain = 2.0
+    env = Env(env1, env2, gain)
+    env
+end
+# register env; do it in global scope
+__env = make_env()
 __x0 = NestedEnvironments.initial_condition(__env)
 @reg_env __env __x0
 
-
-## main
-function main()
-    Random.seed!(1)
-    env = Env(NestedEnvironments.InputAffineQuadraticCostEnv(), Policy())
-    x0 = NestedEnvironments.initial_condition(env)
+# test
+function test()
+    env = make_env()
+    x0 = NestedEnvironments.initial_condition(env)  # auto-completion of initial condition
+    @show x0  # x0 = (env1 = 9, env2 = (env21 = [1 3 5 7; 2 4 6 8], env22 = [1 3 5 7; 2 4 6 8]))
     t0 = 0.0
     tf = 10.0
-    Δt = 0.01
     tspan = (t0, tf)
+    Δt = 0.01  # saveat; not numerical integration
     ts = t0:Δt:tf
     prob = ODEProblem(env, dynamics(env), x0, tspan)
-    function affect!(integrator)
-        x = @readable env integrator.u  # actually not necessary in this case but recommended
-        integrator.p = command(env.policy, x.iaqc)
-    end
-    cb_policy = PresetTimeCallback(ts, affect!)
-    saved_values = SavedValues(Float64, NamedTuple)
-    cb_save = SavingCallback((u, t, integrator) -> (; state = @readable(env, integrator.u).iaqc, action = integrator.p), saved_values, saveat=ts)
-    cb = CallbackSet(cb_policy, cb_save)
-    @time sol = solve(prob, Tsit5(); p=0.0, callback=cb)
-    xs = (hcat((saved_values.saveval |> Map(nt -> nt.state) |> collect)...))'
-    actions = saved_values.saveval |> Map(nt -> nt.action) |> collect
-    p_x = plot(ts, xs)
-    log_dir = "data/agent"
-    mkpath(log_dir)
-    savefig(p_x, joinpath(log_dir, "x.png"))
-    p_a = plot(ts, actions)
-    savefig(p_a, joinpath(log_dir, "a.png"))
+    @time sol = solve(prob, Tsit5(), saveat=ts)
+    xs = sol.u |> Map(_x -> @readable _x) |> collect  # nested states
+    @test xs[1].env1 == x0.env1
+    @test xs[1].env2.env21 == x0.env2.env21
+    @test xs[1].env2.env22 == x0.env2.env22
 end
 ```
