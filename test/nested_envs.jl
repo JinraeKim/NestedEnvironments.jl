@@ -38,7 +38,7 @@ NestedEnvironments.initial_condition(env::SubEnv2) = env.initial_state
 NestedEnvironments.initial_condition(env::Env1) = -1  # scalar system
 # for convenience
 function make_env()
-    env21, env22 = SubEnv2(reshape(1:8, 2, 4)), SubEnv2(reshape(9:16, 2, 4))
+    env21, env22 = SubEnv2(reshape(collect(1:8), 2, 4)), SubEnv2(reshape(collect(9:16), 2, 4))
     env1 = Env1()
     env2 = Env2(env21, env22)
     gain = 2.0
