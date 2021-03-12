@@ -1,3 +1,10 @@
+## warning
+function warn_is_registered(env::AbstractEnv)
+    is_registered = NestedEnvironments.__REGISTERED_ENVS.__envs |> Map(__env -> typeof(__env) == typeof(env)) |> collect |> any
+    return is_registered ? nothing : error("Unregistered env: $(typeof(env))")
+end
+
+## functions
 # env names
 function Base.names(env::AbstractEnv)
     return [name for name in fieldnames(typeof(env)) if typeof(getfield(env, name)) <: AbstractEnv]
@@ -20,7 +27,7 @@ function flatten_length(x0::NamedTuple)
         return env_names |> Map(name -> flatten_length(x0[name])) |> sum
     end
 end
-flatten_length(x0::Array{Float64, 1}) = prod(size(x0))
+flatten_length(x0) = prod(size(x0))
 
 # get the index
 function _index(env::AbstractEnv, x0, _range)
@@ -44,6 +51,7 @@ function _preprocess(env::AbstractEnv, x0)
     return env_index_nt, env_size_nt
 end
 
+## main functions
 # transform readable to raw (flatten)
 function _raw(env::AbstractEnv, x)
     env_names = names(env)
