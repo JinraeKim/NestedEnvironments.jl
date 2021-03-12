@@ -5,7 +5,7 @@ using Random
 using Transducers
 
 
-function dynamics(env::NestedEnvironments.InputAffineQuadraticCostEnv)
+function dynamics(env::InputAffineQuadraticCostEnv)
     return function (x, p, t)
         u = command(env, x)
         NestedEnvironments.ẋ(env, x, t, u)
@@ -13,16 +13,16 @@ function dynamics(env::NestedEnvironments.InputAffineQuadraticCostEnv)
 end
 command(env, x) = NestedEnvironments.u_optimal(env, x)
 
-initial_condition(env::NestedEnvironments.InputAffineQuadraticCostEnv) = 2*(rand(2) .- 0.5)
+initial_condition(env::InputAffineQuadraticCostEnv) = 2*(rand(2) .- 0.5)
 
-__env = NestedEnvironments.InputAffineQuadraticCostEnv()
+__env = InputAffineQuadraticCostEnv()
 __x0 = initial_condition(__env)
 @reg_env __env __x0
 
 ## main
 function single()
     Random.seed!(1)
-    env = NestedEnvironments.InputAffineQuadraticCostEnv()
+    env = InputAffineQuadraticCostEnv()
     x0 = initial_condition(env)
     t0 = 0.0
     tf = 10.0
@@ -36,7 +36,7 @@ end
 
 function parallel()
     Random.seed!(1)
-    env = NestedEnvironments.InputAffineQuadraticCostEnv()
+    env = InputAffineQuadraticCostEnv()
     num = 10
     x0s = 1:num |> Map(i -> initial_condition(env))
     t0 = 0.0
