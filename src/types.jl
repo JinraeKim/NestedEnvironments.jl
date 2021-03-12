@@ -1,3 +1,4 @@
+## basic
 # envs
 abstract type AbstractEnv end
 
@@ -11,3 +12,6 @@ __REGISTERED_ENVS = RegisteredEnvs([], [])
 # generic functions
 function readable end
 function raw end
+
+
+## zoo

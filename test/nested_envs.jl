@@ -4,17 +4,14 @@ using Transducers
 using Test
 
 
-struct SubEnv2 <: AbstractEnv
-    initial_state
-end
-struct Env1 <: AbstractEnv
-end
+# `BaseEnv` is a kind of syntax sugar for definition of environment; provided by `src/zoo.jl`.
+# Note: `NestedEnvironments.initial_condition(env::BaseEnv) = env.initial_state`
 struct Env2 <: AbstractEnv
-    env21::SubEnv2
-    env22::SubEnv2
+    env21::BaseEnv
+    env22::BaseEnv
 end
 struct Env <: AbstractEnv
-    env1::Env1
+    env1::BaseEnv
     env2::Env2
     gain::Float64
 end
@@ -33,13 +30,10 @@ function dynamics(env::Env)
     end
 end
 
-# if you extend `NestedEnvironments.initial_condition` for all sub environments, then `NestedEnvironments.initial_condition(env::Env)` will automatically complete a nested initial condition as NamedTuple.
-NestedEnvironments.initial_condition(env::SubEnv2) = env.initial_state
-NestedEnvironments.initial_condition(env::Env1) = -1  # scalar system
 # for convenience
 function make_env()
-    env21, env22 = SubEnv2(reshape(1:8, 2, 4)), SubEnv2(reshape(9:16, 2, 4))
-    env1 = Env1()
+    env21, env22 = BaseEnv(reshape(collect(1:8), 2, 4)), BaseEnv(reshape(collect(9:16), 2, 4))
+    env1 = BaseEnv(-1)
     env2 = Env2(env21, env22)
     gain = 2.0
     env = Env(env1, env2, gain)
@@ -53,6 +47,8 @@ __x0 = NestedEnvironments.initial_condition(__env)
 # test
 function test()
     env = make_env()
+    # initial condition
+    # if you extend `NestedEnvironments.initial_condition` for all sub environments, then `NestedEnvironments.initial_condition(env::Env)` will automatically complete a readable initial condition as NamedTuple.
     x0 = NestedEnvironments.initial_condition(env)  # auto-completion of initial condition
     @show x0  # x0 = (env1 = -1, env2 = (env21 = [1 3 5 7; 2 4 6 8], env22 = [9 11 13 15; 10 12 14 16]))
     t0 = 0.0

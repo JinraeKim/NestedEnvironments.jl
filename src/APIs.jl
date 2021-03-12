@@ -88,7 +88,7 @@ A macro that transforms a readable (NamedTuple) value to raw (flattened array) v
 """
 macro raw(x)
     ex = quote
-        local env_x_cands = zip(NestedEnvironments.__REGISTERED_ENVS.__envs, NestedEnvironments.__REGISTERED_ENVS.__xs) |> Filter(env_x -> size(env_x[2]) == size($(x))) |> collect
+        local env_x_cands = zip(NestedEnvironments.__REGISTERED_ENVS.__envs, NestedEnvironments.__REGISTERED_ENVS.__xs) |> Transducers.Filter(env_x -> size(env_x[2]) == size($(x))) |> collect
         if length(env_x_cands) == 0
             error("There is no matched registered envrionment")
         elseif length(env_x_cands) > 1
@@ -124,7 +124,7 @@ A macro that transforms a raw (flattened array) value to readable (NamedTuple) v
 """
 macro readable(_x)
     ex = quote
-        local env_x_cands = zip(NestedEnvironments.__REGISTERED_ENVS.__envs, NestedEnvironments.__REGISTERED_ENVS.__xs) |> Filter(env_x -> NestedEnvironments.flatten_length(env_x[2]) == NestedEnvironments.flatten_length($(_x))) |> collect
+        local env_x_cands = zip(NestedEnvironments.__REGISTERED_ENVS.__envs, NestedEnvironments.__REGISTERED_ENVS.__xs) |> Transducers.Filter(env_x -> NestedEnvironments.flatten_length(env_x[2]) == NestedEnvironments.flatten_length($(_x))) |> collect
         if length(env_x_cands) == 0
             error("There is no matched registered envrionment")
         elseif length(env_x_cands) > 1

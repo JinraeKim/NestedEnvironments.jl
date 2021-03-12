@@ -6,7 +6,7 @@ using Transducers
 export AbstractEnv  # types.jl
 # internalAPIs.jl
 export raw, readable, @reg_env, @raw, @readable  # APIs.jl
-# zoo.jl
+export BaseEnv, InputAffineQuadraticCostEnv  # zoo.jl
 
 
 include("types.jl")
