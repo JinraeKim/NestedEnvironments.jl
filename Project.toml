@@ -1,7 +1,7 @@
 name = "NestedEnvironments"
 uuid = "cb6df31d-e3f2-4e74-89c5-02b08550c949"
 authors = ["JinraeKim <kjl950403@gmail.com> and contributors"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
