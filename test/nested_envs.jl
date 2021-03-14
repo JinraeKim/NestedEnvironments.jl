@@ -1,59 +1,3 @@
-# NestedEnvironments.jl
-This is an API for nested environments,
-compatible with [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl).
-
-## Terminology
-An environment may consist of nested environments.
-Each environment is a structure (e.g., `typeof(env) <: AbstractEnv`), which includes dynamical systems and additional information.
-
-## Notes
-- Currently, only ODE is supported.
-See `src/API.jl` for more details.
-
-# Features
-## Nested environments
-`NestedEnvironments.jl` supports nested environments API.
-The **dynamical equations** and **initial condition** are treated as structured forms (as NamedTuple).
-Compared to the original `DifferentialEquations.jl`, you don't need to match the index of derivative calculation.
-For example,
-```julia
-function f(x, p, t)
-    x1 = x.env1  # for example
-    x2 = x.env2  # for example
-    dx1 = x2
-    dx2 = -x1
-    (; x1 = dx1, x2 = dx2)  # NamedTuple
-end
-```
-instead of
-```julia
-function f(x, p, t)
-    dx = zero(x)
-    dx[1] = x[2]
-    dx[2] = -x[1]
-    dx
-end
-```
-.
-For more details, see the below example.
-
-## Macros and auto-completion
-`NestedEnvironments.jl` provides convenient macros such as `@readable` and `@raw`.
-`@readable` makes an Array, compatible with `DifferentialEquations.jl`, (structured) NamedTuple.
-Conversely,
-`@raw` makes a NamedTuple, default structure of `NestedEnvironments.jl`, an Array compatible with `DifferentialEquations.jl`.
-
-## Environment Zoo
-It provides some predefined environments.
-See `src/zoo.jl` for more information.
-
-
-# Usage
-## Example
-### Nested environments
-It is highly recommended to run the following code and practice how to use it.
-
-```julia
 using NestedEnvironments
 using DifferentialEquations
 using Transducers
@@ -124,4 +68,3 @@ function test()
     @show _x0  # _x0 = [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     @test _x0 == sol.u[1]
 end
-```

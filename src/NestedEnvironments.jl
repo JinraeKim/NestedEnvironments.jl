@@ -3,15 +3,15 @@ module NestedEnvironments
 using DifferentialEquations
 using Transducers
 
-export AbstractEnv
-export raw, readable
-export @reg_env, @raw, @readable
+export AbstractEnv  # types.jl
+# internalAPIs.jl
+export raw, readable, @reg_env, @raw, @readable  # APIs.jl
+export BaseEnv, InputAffineQuadraticCostEnv  # zoo.jl
 
 
 include("types.jl")
 include("internalAPIs.jl")
 include("APIs.jl")
-include("macros.jl")
 include("zoo.jl")
 
 

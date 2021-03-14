@@ -2,6 +2,18 @@ using LinearAlgebra
 using Parameters
 
 
+########## Base Env ##########
+# BaseEnv
+struct BaseEnv <: AbstractEnv
+    initial_state
+end
+BaseEnv(given_size::Tuple) = BaseEnv(zeros(given_size))
+BaseEnv(args...) = BaseEnv(zeros(args...))
+BaseEnv() = BaseEnv(0.0)
+# initial_condition
+NestedEnvironments.initial_condition(env::BaseEnv) = env.initial_state
+
+
 ########## InputAffineQuadraticCostEnv ##########
 """
 An example of continuous-time nonlinear dynamical system introduced in
