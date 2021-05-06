@@ -1,3 +1,5 @@
+# Deprecated: The same idea has already been developed in [LabelledArrays](https://github.com/SciML/LabelledArrays.jl). Take a look at it!
+
 # NestedEnvironments.jl
 This is an API for nested environments,
 compatible with [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl).
@@ -79,10 +81,10 @@ function dynamics(env::Env)
         x1 = x.env1
         x21 = x.env2.env21
         x22 = x.env2.env22
-        ẋ1 = -x1 - env.gain*sum(x21 + x22)
-        ẋ21 = -x21
-        ẋ22 = -x22
-        (; env1 = ẋ1, env2 = (; env21 = ẋ21, env22 = ẋ22))
+        ẋ1 = -x1 - env.gain*sum(x21 + x22)
+        ẋ21 = -x21
+        ẋ22 = -x22
+        (; env1 = ẋ1, env2 = (; env21 = ẋ21, env22 = ẋ22))
     end
 end
 
